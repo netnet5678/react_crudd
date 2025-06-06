@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist",
+    "public": "dfirebase deployist",
     "ignore": [
       "firebase.json",
       "**/.*",

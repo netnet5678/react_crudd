@@ -3,6 +3,8 @@ import { db } from "../libs/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { auth } from "../libs/firebase";
+import Logo from "../assets/img/logo-black.png";
+import { Link } from "react-router-dom";
 
 function SearchTable() {
   const [data, setData] = useState([]);
@@ -34,18 +36,26 @@ function SearchTable() {
     );
   });
 
-    const handleLogout = async () => {
-      try {
-        await signOut(auth);
-        console.log("Logged out successfully");
-      } catch (error) {
-        console.error("Logout error:", error);
-      }
-    };
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      console.log("Logged out successfully");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto mt-10 p-4 bg-white rounded shadow">
-      <div className="max-w-6xl mx-auto mt-4 flex justify-end">
+      <div className="max-w-6xl mx-auto mt-4 flex justify-between items-center">
+        {/* โลโก้ - ชิดซ้าย */}
+        <div>
+          <Link to="/">
+            <img src={Logo} alt="Logo" />
+          </Link>
+        </div>
+
+        {/* ปุ่ม Logout - ชิดขวา */}
         <button
           onClick={handleLogout}
           className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"

@@ -26,11 +26,8 @@ const router = createBrowserRouter([
   },
   {
     path: '/UserFirstPage',
-    element: (
-      <ProtectedRoute>
-        <UserFirstPage />
-      </ProtectedRoute>
-    )
+    element: <UserFirstPage />,
+    
   },
   {
     path: '/Home',

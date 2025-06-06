@@ -17,6 +17,25 @@ function Table() {
   const [data, setData] = useState([]);
   const userRef = collection(db, "data");
   const [editID, setEditID] = useState(null);
+  const [isClicked, setIsClicked] = useState(false);
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData("Text");
+
+    // แยกข้อมูลด้วย tab หรือเว้นวรรคอย่างน้อย 2 ช่อง
+    const parts = text.trim().split(/\t| {2,}/);
+
+    if (parts.length >= 5) {
+      setFormData({
+        company: parts[0],
+        name: parts[1],
+        code: parts[2],
+        phone: parts[3],
+        anydesk: parts[4],
+      });
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -57,6 +76,10 @@ function Table() {
     } catch (error) {
       console.error("Error adding data: ", error);
     }
+    setIsClicked(true);
+      setTimeout(() => {
+      setIsClicked(false);
+    }, 1000);
   };
 
   const handleDelete = async (id) => {
@@ -98,6 +121,18 @@ function Table() {
           เพิ่มข้อมูลผู้ใช้
         </h2>
 
+        <div className="max-w-6xl mx-auto p-4 bg-white rounded shadow mt-4">
+          <label className="block text-gray-700 font-medium mb-1">
+            วางข้อมูล Excel (แยกด้วย tab หรือ space)
+          </label>
+          <input
+            type="text"
+            onPaste={handlePaste}
+            placeholder="วางข้อมูล: เช่น D7	True Shop Big C Huamark	70001	0641804477	1768356964"
+            className="w-full border border-blue-300 rounded px-4 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
         <div className="flex items-center gap-4 mb-4">
           <div className="w-1/2">
             <label
@@ -112,6 +147,7 @@ function Table() {
               name="company"
               className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="เช่น D7"
+              value={formData.company ?? ""}
               onChange={handleSubmit}
             />
           </div>
@@ -128,7 +164,8 @@ function Table() {
               id="name"
               name="name"
               className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="เช่น True Shop Big C Suratthani1"
+              placeholder="เช่น True Shop Big C Huamark"
+              value={formData.name ?? ""}
               onChange={handleSubmit}
             />
           </div>
@@ -146,6 +183,7 @@ function Table() {
               name="code"
               className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="เช่น 70001"
+              value={formData.code ?? ""}
               onChange={handleSubmit}
             />
           </div>
@@ -164,7 +202,8 @@ function Table() {
               id="phone"
               name="phone"
               className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="เช่น 081 234 5678"
+              placeholder="เช่น 084 180 4477"
+              value={formData.phone ?? ""}
               onChange={handleSubmit}
             />
           </div>
@@ -181,7 +220,8 @@ function Table() {
               id="anydesk"
               name="anydesk"
               className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="เช่น 123 456 789"
+              placeholder="เช่น 1768356964"
+              value={formData.anydesk ?? ""}
               onChange={handleSubmit}
             />
           </div>
@@ -189,7 +229,9 @@ function Table() {
 
         <button
           onClick={handleAddData}
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+          className={`w-full py-2 px-4 rounded transition duration-300 ${
+            isClicked ? "bg-green-600" : "bg-blue-500 hover:bg-red-600"
+          } text-white`}
         >
           บันทึกข้อมูล
         </button>

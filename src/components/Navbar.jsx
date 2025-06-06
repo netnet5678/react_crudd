@@ -19,7 +19,7 @@ function Navbar() {
             </div>
 
             <ul className= {`${!isOpen ? 'hidden' : 'fexl' }flex flex-col my-5 md:flex md:flex-row`} >
-                <li className="my-2 md:mx-4 hover:underline"><Link to="#">Home</Link></li>
+                <li className="my-2 md:mx-4 hover:underline"><Link to="/UserFirstPage">Home</Link></li>
                 <li className="my-2 md:mx-4 hover:underline"><Link to="#">Service</Link></li>
                 <li className="my-2 md:mx-4 hover:underline"><Link to="#">Feature</Link></li>
                 <li className="my-2 md:mx-4 hover:underline"><Link to="#">Product</Link></li>

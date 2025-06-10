@@ -355,7 +355,7 @@ function Table() {
 
                         <button
                           onClick={() =>
-                            window.open(`tel:${item.tel}`, "_self")
+                            window.open(`tel:${item.phone}`, "_self")
                           }
                           className="bg-green-700 text-white px-3 py-1 rounded hover:bg-green-600 mb-1 md:mb-0 mr-2"
                         >

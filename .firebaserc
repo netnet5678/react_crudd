@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "react-firebase-auth-39357"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }

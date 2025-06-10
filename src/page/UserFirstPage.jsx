@@ -9,6 +9,8 @@ import { Link } from "react-router-dom";
 function SearchTable() {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  // State for sorting: column to sort by and order ('asc' or 'desc')
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
   const userRef = collection(db, "data");
 
@@ -24,7 +26,7 @@ function SearchTable() {
     return () => unsubscribe();
   }, []);
 
-  // กรองข้อมูลตาม searchTerm (search ใน company, name, code, phone, anydesk)
+  // Filter data based on searchTerm
   const filteredData = data.filter((item) => {
     const search = searchTerm.toLowerCase();
     return (
@@ -35,6 +37,33 @@ function SearchTable() {
       item.anydesk?.toLowerCase().includes(search)
     );
   });
+
+  // Apply sorting to the filtered data
+  const sortedData = [...filteredData].sort((a, b) => {
+    if (sortConfig.key === null) {
+      return 0; // No sorting applied yet
+    }
+
+    const aValue = a[sortConfig.key] || "";
+    const bValue = b[sortConfig.key] || "";
+
+    if (aValue < bValue) {
+      return sortConfig.direction === "asc" ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return sortConfig.direction === "asc" ? 1 : -1;
+    }
+    return 0;
+  });
+
+  // Handler for when a table header is clicked
+  const requestSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
 
   const handleLogout = async () => {
     try {
@@ -77,17 +106,52 @@ function SearchTable() {
         <table className="min-w-full border border-gray-300 text-sm md:text-base">
           <thead className="bg-gray-100">
             <tr>
-              <th className="border px-4 py-2 text-center">Company</th>
-              <th className="border px-4 py-2 text-center">Name</th>
-              <th className="border px-4 py-2 text-center">Code</th>
-              <th className="border px-4 py-2 text-center">Phone</th>
-              <th className="border px-4 py-2 text-center">Anydesk</th>
+              <th
+                className="border px-4 py-2 text-center cursor-pointer"
+                onClick={() => requestSort("company")}
+              >
+                Company
+                {sortConfig.key === "company" &&
+                  (sortConfig.direction === "asc" ? " ⬆️" : " ⬇️")}
+              </th>
+              <th
+                className="border px-4 py-2 text-center cursor-pointer"
+                onClick={() => requestSort("name")}
+              >
+                Name
+                {sortConfig.key === "name" &&
+                  (sortConfig.direction === "asc" ? " ⬆️" : " ⬇️")}
+              </th>
+              <th
+                className="border px-4 py-2 text-center cursor-pointer"
+                onClick={() => requestSort("code")}
+              >
+                Code
+                {sortConfig.key === "code" &&
+                  (sortConfig.direction === "asc" ? " ⬆️" : " ⬇️")}
+              </th>
+              <th
+                className="border px-4 py-2 text-center cursor-pointer"
+                onClick={() => requestSort("phone")}
+              >
+                Phone
+                {sortConfig.key === "phone" &&
+                  (sortConfig.direction === "asc" ? " ⬆️" : " ⬇️")}
+              </th>
+              <th
+                className="border px-4 py-2 text-center cursor-pointer"
+                onClick={() => requestSort("anydesk")}
+              >
+                Anydesk
+                {sortConfig.key === "anydesk" &&
+                  (sortConfig.direction === "asc" ? " ⬆️" : " ⬇️")}
+              </th>
               <th className="border px-4 py-2 text-center">Action</th>
             </tr>
           </thead>
           <tbody>
-            {filteredData.length > 0 ? (
-              filteredData.map((item) => (
+            {sortedData.length > 0 ? (
+              sortedData.map((item) => (
                 <tr key={item.id}>
                   <td className="border px-4 py-2 text-center">
                     {item.company}
@@ -120,7 +184,7 @@ function SearchTable() {
             ) : (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={6} // Changed from 5 to 6 to account for the "Action" column
                   className="border px-4 py-2 text-center text-gray-500"
                 >
                   ไม่พบข้อมูลที่ค้นหา

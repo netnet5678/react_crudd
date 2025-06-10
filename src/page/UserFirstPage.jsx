@@ -9,8 +9,9 @@ import { Link } from "react-router-dom";
 function SearchTable() {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  // State for sorting: column to sort by and order ('asc' or 'desc')
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  // สถานะสำหรับจัดเรียง: คอลัมน์ที่จัดเรียงและทิศทาง ('asc' หรือ 'desc')
+  // กำหนดค่าเริ่มต้นให้เรียงตาม 'company' จากน้อยไปมากทันทีที่โหลด
+  const [sortConfig, setSortConfig] = useState({ key: "code", direction: "asc" });
 
   const userRef = collection(db, "data");
 
@@ -26,7 +27,7 @@ function SearchTable() {
     return () => unsubscribe();
   }, []);
 
-  // Filter data based on searchTerm
+  // กรองข้อมูลตาม searchTerm (search ใน company, name, code, phone, anydesk)
   const filteredData = data.filter((item) => {
     const search = searchTerm.toLowerCase();
     return (
@@ -38,15 +39,18 @@ function SearchTable() {
     );
   });
 
-  // Apply sorting to the filtered data
+  // ใช้การจัดเรียงกับข้อมูลที่กรองแล้ว
   const sortedData = [...filteredData].sort((a, b) => {
+    // ถ้ายังไม่มีการกำหนดคอลัมน์ที่จะจัดเรียง (กรณี sortConfig.key เป็น null)
+    // หรือถ้ามีการกำหนดแล้ว ให้ทำการจัดเรียง
     if (sortConfig.key === null) {
-      return 0; // No sorting applied yet
+      return 0; // ไม่เรียงลำดับ (แต่ตอนนี้เรากำหนด key เริ่มต้นแล้ว จึงไม่ควรเข้าเงื่อนไขนี้)
     }
 
     const aValue = a[sortConfig.key] || "";
     const bValue = b[sortConfig.key] || "";
 
+    // เปรียบเทียบค่าเพื่อจัดเรียง
     if (aValue < bValue) {
       return sortConfig.direction === "asc" ? -1 : 1;
     }
@@ -56,12 +60,27 @@ function SearchTable() {
     return 0;
   });
 
-  // Handler for when a table header is clicked
+  // ฟังก์ชันสำหรับจัดการเมื่อคลิกที่หัวตาราง
   const requestSort = (key) => {
     let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
+    // ถ้าคลิกคอลัมน์เดิม
+    if (sortConfig.key === key) {
+      // ถ้าตอนนี้เรียงจากน้อยไปมาก ให้เปลี่ยนเป็นมากไปน้อย (คลิกครั้งแรกหลังจากโหลด)
+      if (sortConfig.direction === "asc") {
+        direction = "desc";
+      }
+      // ถ้าตอนนี้เรียงจากมากไปน้อย ให้เปลี่ยนกลับเป็นน้อยไปมาก (คลิกครั้งถัดไป)
+      else {
+        direction = "asc";
+      }
+    }
+    // ถ้าคลิกคอลัมน์ใหม่ ให้เริ่มต้นเรียงจากน้อยไปมาก
+    // (แต่โจทย์ของคุณคือ "คลิกครั้งแรกมากไปน้อย" ดังนั้นตรงนี้จะเปลี่ยน Logic เล็กน้อย)
+    // ตามโจทย์ใหม่: ถ้าคลิกคอลัมน์ใหม่ ให้เริ่มต้นเรียงจากมากไปน้อยเลย
+    if (sortConfig.key !== key) {
       direction = "desc";
     }
+
     setSortConfig({ key, direction });
   };
 
@@ -111,6 +130,7 @@ function SearchTable() {
                 onClick={() => requestSort("company")}
               >
                 Company
+                {/* แสดงไอคอนลูกศรบอกทิศทางการเรียง */}
                 {sortConfig.key === "company" &&
                   (sortConfig.direction === "asc" ? " ⬆️" : " ⬇️")}
               </th>
@@ -150,6 +170,7 @@ function SearchTable() {
             </tr>
           </thead>
           <tbody>
+            {/* แสดงข้อมูลที่จัดเรียงแล้ว */}
             {sortedData.length > 0 ? (
               sortedData.map((item) => (
                 <tr key={item.id}>
@@ -184,7 +205,7 @@ function SearchTable() {
             ) : (
               <tr>
                 <td
-                  colSpan={6} // Changed from 5 to 6 to account for the "Action" column
+                  colSpan={6}
                   className="border px-4 py-2 text-center text-gray-500"
                 >
                   ไม่พบข้อมูลที่ค้นหา
